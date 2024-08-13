@@ -25,7 +25,7 @@ namespace Chat_Server_tcp
             t_handler.Start();
         }
 
-        // 대리자와 이벤트 핸들러 선언(옵저버 패턴)
+        // 대리자와 이벤트 핸들러 선언(옵저버 패턴) 
         public delegate void MessageDisplayHandler(string message, string userName);
         public event MessageDisplayHandler OnReceived; //클라이언트 상태 받기
 
