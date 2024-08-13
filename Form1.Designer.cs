@@ -109,6 +109,7 @@
             this.txtMessage.Name = "txtMessage";
             this.txtMessage.Size = new System.Drawing.Size(561, 21);
             this.txtMessage.TabIndex = 7;
+            this.txtMessage.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtMsg_keyUp);
             // 
             // button2
             // 

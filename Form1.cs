@@ -148,10 +148,15 @@ namespace Chat_Server_tcp
             {
                 if (div.Equals("I"))
                 {
-                    listBox1.Items.Add(userName);
+                    listBox1.Invoke(new MethodInvoker(delegate {
+                        listBox1.Items.Add(userName);
+                    }
+                    ));
                 }else if (div.Equals("D"))
                 {
-                    listBox1.Items.Remove(userName);
+                    listBox1.Invoke(new MethodInvoker(delegate { listBox1.Items.Remove(userName);
+                    }
+                    ));
                 }
             }catch(Exception ex){
                 MessageBox.Show(ex.ToString());
@@ -210,6 +215,12 @@ namespace Chat_Server_tcp
 
             Displaytext(displayMessage);
             SendMessageAll(message, userName, true);
+        }
+
+        private void txtMsg_keyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter) // 엔터키 눌렀을 때
+                button2_Click(this, e);
         }
     }
 }
