@@ -16,11 +16,11 @@ namespace Chat_Server_tcp
     public partial class Form1 : Form
     {
 
-        TcpListener server = null;
-        TcpClient clientSocket = null;
+        TcpListener server = null; //리스닝 대기 서버
+        TcpClient clientSocket = null; // TCP 클라이언트
 
         string date;
-        private Dictionary<TcpClient, string> clientList = new Dictionary<TcpClient, string>();
+        private Dictionary<TcpClient, string> clientList = new Dictionary<TcpClient, string>(); // TCP클라이언트 + 클라이언트명 자료구조
         private int PORT = 5000;
 
         public Form1()
@@ -30,7 +30,7 @@ namespace Chat_Server_tcp
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            InitForm();
+            InitForm(); //변수 초기화
             txtIP.Text = GetLocalIP();
             txtPort.Text = PORT.ToString();
         }
@@ -42,6 +42,7 @@ namespace Chat_Server_tcp
 
             for(int i=0; i<host.AddressList.Length; i++)
             {
+                // 내 로컬 ip주소 얻기
                 if (host.AddressList[i].AddressFamily == AddressFamily.InterNetwork)
                 {
                     localIP = host.AddressList[i].ToString();
@@ -62,6 +63,7 @@ namespace Chat_Server_tcp
 
         private void button1_Click(object sender, EventArgs e)
         {
+            // 서버 실행 시 스레드 처리
             Thread thread1 = new Thread(InitSocket);
             thread1.IsBackground = true;
             thread1.Start();
@@ -69,7 +71,9 @@ namespace Chat_Server_tcp
 
         private void InitSocket()
         {
+            //parse를 통해 ip주소 문자열을 ipaddress 인스턴스로 변환
             server = new TcpListener(IPAddress.Parse(txtIP.Text), int.Parse(txtPort.Text));
+            // 클라이언트 소켓은 null로 초기화
             clientSocket = default(TcpClient);
             server.Start();
             Displaytext("System : 서버 시작");
@@ -78,21 +82,31 @@ namespace Chat_Server_tcp
             {
                 try
                 {
+                    //클라이언트 소켓 수신
                     clientSocket = server.AcceptTcpClient();
+                    //스트림 생성
                     NetworkStream stream = clientSocket.GetStream();
                     byte[] buffer = new byte[1024];
+                    //스트림 읽기
                     int bytes = stream.Read(buffer, 0, buffer.Length);
                     string userName = Encoding.Unicode.GetString(buffer, 0, bytes);
                     userName = userName.Substring(0, userName.IndexOf("$"));
                     Displaytext("System : [" + userName + "] 접속");
 
+                    //접속한 client 딕셔너리에 추가
                     clientList.Add(clientSocket, userName);
+
+                    //연결된 client에 메세지 전송
                     SendMessageAll(userName + " 님이 입장하였습니다.", "", false);
+
+                    //클라이언트 리스트 창에 입력
                     SetUserList(userName, "I");
 
                     HandleClient h_client = new HandleClient();
                     h_client.OnReceived += new HandleClient.MessageDisplayHandler(OnReceived);
                     h_client.OnDisconnected += new HandleClient.DisconnectedHandler(h_client_OnDisconnected);
+                    
+                    //클라이언트 연결 및 채팅시작
                     h_client.startClient(clientSocket, clientList);
                 }
                 catch(SocketException se) { break; }
